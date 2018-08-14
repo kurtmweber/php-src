@@ -109,6 +109,16 @@ ZEND_BEGIN_ARG_INFO(arginfo_frenchtojd, 0)
 	ZEND_ARG_INFO(0, year)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO(arginfo_tabislamictojd, 0)
+	ZEND_ARG_INFO(0, month)
+	ZEND_ARG_INFO(0, day)
+	ZEND_ARG_INFO(0, year)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO(arginfo_jdtotabislamic, 0)
+	ZEND_ARG_INFO(0, juliandaycount)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_jddayofweek, 0, 0, 1)
 	ZEND_ARG_INFO(0, juliandaycount)
 	ZEND_ARG_INFO(0, mode)
@@ -139,6 +149,8 @@ static const zend_function_entry calendar_functions[] = {
 	PHP_FE(jewishtojd, arginfo_jewishtojd)
 	PHP_FE(jdtofrench, arginfo_jdtofrench)
 	PHP_FE(frenchtojd, arginfo_frenchtojd)
+	PHP_FE(jdtotabislamic, arginfo_jdtotabislamic)
+	PHP_FE(tabislamictojd, arginfo_tabislamictojd)
 	PHP_FE(jddayofweek, arginfo_jddayofweek)
 	PHP_FE(jdmonthname, arginfo_jdmonthname)
 	PHP_FE(easter_date, arginfo_easter_date)
@@ -176,6 +188,7 @@ enum cal_name_type_t {
 	CAL_JULIAN,
 	CAL_JEWISH,
 	CAL_FRENCH,
+	CAL_TABISLAMIC,
 	CAL_NUM_CALS
 };
 
@@ -202,7 +215,8 @@ static const struct cal_entry_t cal_conversion_table[CAL_NUM_CALS] = {
 	{"Jewish", "CAL_JEWISH", JewishToSdn, SdnToJewish, 13, 30,
 	 JewishMonthNameLeap, JewishMonthNameLeap},
 	{"French", "CAL_FRENCH", FrenchToSdn, SdnToFrench, 13, 30,
-	 FrenchMonthName, FrenchMonthName}
+	 FrenchMonthName, FrenchMonthName},
+	{"Tabular Islamic", "CAL_TABISLAMIC", TabIslamicToSdn, SdnToTabIslamic, 12, 30, TabIslamicMonthName, TabIslamicMonthName}
 };
 
 #define JEWISH_MONTH_NAME(year) 	((monthsPerYear[((year)-1) % 19] == 13)?JewishMonthNameLeap:JewishMonthName)
@@ -230,6 +244,7 @@ PHP_MINIT_FUNCTION(calendar)
 	REGISTER_LONG_CONSTANT("CAL_JULIAN", CAL_JULIAN, CONST_CS | CONST_PERSISTENT);
 	REGISTER_LONG_CONSTANT("CAL_JEWISH", CAL_JEWISH, CONST_CS | CONST_PERSISTENT);
 	REGISTER_LONG_CONSTANT("CAL_FRENCH", CAL_FRENCH, CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("CAL_TABISLAMIC", CAL_TABISLAMIC, CONST_CS | CONST_PERSISTENT);
 	REGISTER_LONG_CONSTANT("CAL_NUM_CALS", CAL_NUM_CALS, CONST_CS | CONST_PERSISTENT);
 /* constants for jddayofweek */
 	REGISTER_LONG_CONSTANT("CAL_DOW_DAYNO", CAL_DOW_DAYNO, CONST_CS | CONST_PERSISTENT);
@@ -675,6 +690,29 @@ PHP_FUNCTION(frenchtojd)
 	RETURN_LONG(FrenchToSdn(year, month, day));
 }
 /* }}} */
+
+PHP_FUNCTION(jdtotabislamic)
+{
+	zend_long julday;
+	int year, month, day;
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "l", &julday) == FAILURE){
+		RETURN_FALSE;
+	}
+
+	SdnToTabIslamic(julday, &year, &month, &day);
+	RETURN_NEW_STR(zend_strpprintf(0, "%i/%i/%i", month, day, year));
+}
+
+PHP_FUNCTION(tabislamictojd)
+{
+	zend_long year, month, day;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "lll", &month, &day, &year) == FAILURE){
+		RETURN_FALSE;
+	}
+
+	RETURN_LONG(TabIslamicToSdn(year, month, day));
+}
 
 /* {{{ proto mixed jddayofweek(int juliandaycount [, int mode])
    Returns name or number of day of week from julian day count */

@@ -20,6 +20,8 @@ PHP_FUNCTION(jdtojewish);
 PHP_FUNCTION(jewishtojd);
 PHP_FUNCTION(jdtofrench);
 PHP_FUNCTION(frenchtojd);
+PHP_FUNCTION(jdtotabislamic);
+PHP_FUNCTION(tabislamictojd);
 PHP_FUNCTION(jddayofweek);
 PHP_FUNCTION(jdmonthname);
 PHP_FUNCTION(easter_days);

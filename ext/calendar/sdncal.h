@@ -91,8 +91,10 @@ void SdnToFrench(zend_long sdn, int *pYear, int *pMonth, int *pDay);
 zend_long FrenchToSdn(int inputYear, int inputMonth, int inputDay);
 extern const char * const FrenchMonthName[14];
 
-/* Islamic calendar conversions. */
-/* Not implemented yet. */
+/* Tabular Islamic calendar conversions. */
+void SdnToTabIslamic(zend_long sdn, int *pYear, int *pMonth, int *pDay);
+zend_long TabIslamicToSdn(int inputYear, int inputMonth, int inputDay);
+extern const char * const TabIslamicMonthName[13];
 
 /* Day of week conversion.  0=Sunday, 6=Saturday */
 int DayOfWeek(zend_long sdn);
